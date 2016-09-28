@@ -140,7 +140,7 @@ float euler[3];         // [psi, theta, phi]    Euler angle container
 float ypr[3];           // [yaw, pitch, roll]   yaw/pitch/roll container and gravity vector
 
 // packet structure for InvenSense teapot demo
-uint8_t teapotPacket[20] = { '$', 0x02, 0,0, 0,0, 0,0, 0,0, 0,0, 0,0, 0,0, 0x00, 0x00, '\r', '\n' };
+uint8_t teapotPacket[26] = { '$', 0x02, 0,0, 0,0, 0,0, 0,0, 0,0, 0,0, 0,0, 0,0, 0,0, 0,0, 0x00, 0x00, '\r', '\n' };
 
 
 
@@ -280,7 +280,7 @@ void loop() {
 
         // read a packet from FIFO
         mpu.getFIFOBytes(fifoBuffer, packetSize);
-        
+
         // track FIFO count here in case there is > 1 packet available
         // (this lets us immediately read more without waiting for an interrupt)
         fifoCount -= packetSize;
@@ -352,7 +352,7 @@ void loop() {
             Serial.print("\t");
             Serial.println(aaWorld.z);
         #endif
-    
+
         #ifdef OUTPUT_TEAPOT
             // display quaternion values in InvenSense Teapot demo format:
             teapotPacket[2] = fifoBuffer[0];
@@ -369,8 +369,14 @@ void loop() {
             teapotPacket[13] = fifoBuffer[33];
             teapotPacket[14] = fifoBuffer[36];
             teapotPacket[15] = fifoBuffer[37];
-            Serial.write(teapotPacket, 20);
-            teapotPacket[17]++; // packetCount, loops at 0xFF on purpose
+            teapotPacket[16] = fifoBuffer[16];
+            teapotPacket[17] = fifoBuffer[17];
+            teapotPacket[18] = fifoBuffer[20];
+            teapotPacket[19] = fifoBuffer[21];
+            teapotPacket[20] = fifoBuffer[24];
+            teapotPacket[21] = fifoBuffer[25];
+            Serial.write(teapotPacket, 26);
+            teapotPacket[22]++; // packetCount, loops at 0xFF on purpose
         #endif
 
         // blink LED to indicate activity
