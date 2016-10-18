@@ -205,6 +205,8 @@ void setup() {
     mpu.setZGyroOffset(-18);
     mpu.setZAccelOffset(1788); // 1688 factory default for my test chip
 
+    mpu.setFullScaleGyroRange(MPU6050_GYRO_FS_250);
+
     // make sure it worked (returns 0 if so)
     if (devStatus == 0) {
         // turn on the DMP, now that it's ready
@@ -355,6 +357,10 @@ void loop() {
 
         #ifdef OUTPUT_TEAPOT
             // display quaternion values in InvenSense Teapot demo format:
+
+            uint8_t raw_gyro[6];
+            I2Cdev::readBytes(0x68, 0x43, 6, raw_gyro);
+
             teapotPacket[2] = fifoBuffer[0];
             teapotPacket[3] = fifoBuffer[1];
             teapotPacket[4] = fifoBuffer[4];
@@ -369,13 +375,14 @@ void loop() {
             teapotPacket[13] = fifoBuffer[33];
             teapotPacket[14] = fifoBuffer[36];
             teapotPacket[15] = fifoBuffer[37];
-            teapotPacket[16] = fifoBuffer[16];
-            teapotPacket[17] = fifoBuffer[17];
-            teapotPacket[18] = fifoBuffer[20];
-            teapotPacket[19] = fifoBuffer[21];
-            teapotPacket[20] = fifoBuffer[24];
-            teapotPacket[21] = fifoBuffer[25];
+            teapotPacket[16] = raw_gyro[0];
+            teapotPacket[17] = raw_gyro[1];
+            teapotPacket[18] = raw_gyro[2];
+            teapotPacket[19] = raw_gyro[3];
+            teapotPacket[20] = raw_gyro[4];
+            teapotPacket[21] = raw_gyro[5];
             Serial.write(teapotPacket, 26);
+
             teapotPacket[22]++; // packetCount, loops at 0xFF on purpose
         #endif
 
